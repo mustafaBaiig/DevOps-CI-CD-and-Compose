@@ -1,0 +1,50 @@
+Create a directory for your server:
+mkdir -p ~/express-server
+cd ~/express-server
+npm init -y
+npm install express
+
+Create a server.js file:
+nano server.js
+
+javascript:
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+Create a Systemd Service File
+sudo nano /etc/systemd/system/express-server.service
+
+ini
+
+[Unit]
+Description=Express Web Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /home/your-username/express-server/server.js
+Restart=always
+User=your-username
+Group=your-username
+Environment=PATH=/usr/bin
+WorkingDirectory=/home/your-username/express-server
+[Install]
+WantedBy=multi-user.target
+
+
+1.4 Reload Systemd & Start the Service
+sudo systemctl daemon-reload
+sudo systemctl start express-server
+sudo systemctl enable express-server
+
+1.5 Check Service Status
+sudo systemctl status express-server
+
