@@ -10,8 +10,8 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME_BACKEND: mustafabaig/backend
-  IMAGE_NAME_FRONTEND: mustafabaig/frontend
+  IMAGE_NAME_BACKEND: mustafabaig/server
+  IMAGE_NAME_FRONTEND: mustafabaig/client
 
 jobs:
   build-backend:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Build Backend Image
         run: |
-          docker build -t $IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
+          docker build -t $IMAGE_NAME_BACKEND:${{ github.sha }} ./server
 
       - name: Run Backend Unit Tests
         run: |
@@ -50,7 +50,7 @@ jobs:
 
       - name: Build Frontend Image
         run: |
-          docker build -t $IMAGE_NAME_FRONTEND:${{ github.sha }} ./frontend
+          docker build -t $IMAGE_NAME_FRONTEND:${{ github.sha }} ./client
 
       - name: Run Frontend Unit Tests
         run: |
@@ -103,4 +103,3 @@ jobs:
           docker tag $IMAGE_NAME_FRONTEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_FRONTEND:latest
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:latest
-
