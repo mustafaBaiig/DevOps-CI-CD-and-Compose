@@ -10,8 +10,8 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME_BACKEND: your-dockerhub-username/backend
-  IMAGE_NAME_FRONTEND: your-dockerhub-username/frontend
+  IMAGE_NAME_BACKEND: mustafabaig/backend
+  IMAGE_NAME_FRONTEND: mustafabaig/frontend
 
 jobs:
   build-backend:
@@ -27,15 +27,15 @@ jobs:
 
       - name: Build Backend Image
         run: |
-          docker build -t $IMAGE_NAME_BACKEND:latest ./backend
+          docker build -t $IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
 
       - name: Run Backend Unit Tests
         run: |
-          docker run --rm $IMAGE_NAME_BACKEND:latest npm test || true
+          docker run --rm $IMAGE_NAME_BACKEND:${{ github.sha }} npm test
 
       - name: Lint Backend Code
         run: |
-          docker run --rm $IMAGE_NAME_BACKEND:latest npm run lint || true
+          docker run --rm $IMAGE_NAME_BACKEND:${{ github.sha }} npm run lint
 
   build-frontend:
     name: Build & Test Frontend
@@ -50,19 +50,20 @@ jobs:
 
       - name: Build Frontend Image
         run: |
-          docker build -t $IMAGE_NAME_FRONTEND:latest ./frontend
+          docker build -t $IMAGE_NAME_FRONTEND:${{ github.sha }} ./frontend
 
       - name: Run Frontend Unit Tests
         run: |
-          docker run --rm $IMAGE_NAME_FRONTEND:latest npm test || true
+          docker run --rm $IMAGE_NAME_FRONTEND:${{ github.sha }} npm test
 
       - name: Lint Frontend Code
         run: |
-          docker run --rm $IMAGE_NAME_FRONTEND:latest npm run lint || true
+          docker run --rm $IMAGE_NAME_FRONTEND:${{ github.sha }} npm run lint
 
   security-scan:
     name: Run Security Scan
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -91,10 +92,15 @@ jobs:
 
       - name: Push Backend Image
         run: |
-          docker tag $IMAGE_NAME_BACKEND:latest $REGISTRY/$IMAGE_NAME_BACKEND:latest
+          docker tag $IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }}
+          docker tag $IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:latest
+          docker push $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
       - name: Push Frontend Image
         run: |
-          docker tag $IMAGE_NAME_FRONTEND:latest $REGISTRY/$IMAGE_NAME_FRONTEND:latest
+          docker tag $IMAGE_NAME_FRONTEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }}
+          docker tag $IMAGE_NAME_FRONTEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_FRONTEND:latest
+          docker push $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:latest
+
